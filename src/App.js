@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 
-import reduxex from './redux-example';
+//redux examples
+// import reduxex from './redux-example';
+import todo_example from './redux-todo-example';
 
 class App extends Component {
   render() {
