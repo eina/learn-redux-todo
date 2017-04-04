@@ -10,9 +10,6 @@ var stateDefault = {
   movies: []
 }
 
-var nextHobbyId = 1;
-var nextMovieId = 1;
-
 var oldReducer = (state = stateDefault, action) => {
   switch(action.type){
     case 'CHANGE_NAME':
@@ -65,6 +62,12 @@ var oldReducer = (state = stateDefault, action) => {
   }
 }
 
+/*
+ * ----------------------
+ * Name reducers and action generators
+ * ----------------------
+ */
+
 var nameReducer = (state = 'Anonymous', action) => {
   switch(action.type){
     case 'CHANGE_NAME':
@@ -75,6 +78,22 @@ var nameReducer = (state = 'Anonymous', action) => {
   }
 }
 
+//best for http calls/database requests
+var changeName = (name) => {
+  return {
+    type: 'CHANGE_NAME',
+    name
+    //name: name
+  }
+}
+
+/*
+ * ----------------------
+ * Hobbies reducers and action generators
+ * ----------------------
+ */
+
+var nextHobbyId = 1;
 var hobbiesReducer = (state = [], action) => {
   switch(action.type) {
     case 'ADD_HOBBY':
@@ -93,6 +112,28 @@ var hobbiesReducer = (state = [], action) => {
   }
 }
 
+var addHobby = (hobby) => {
+  return {
+    type: 'ADD_HOBBY',
+    id: nextHobbyId++,
+    hobby
+  }
+}
+
+var removeHobby = (id) => {
+  return {
+    type: 'REMOVE_HOBBY',
+    id
+  }
+}
+
+/*
+ * ----------------------
+ * Movie reducers and generators
+ * ----------------------
+ */
+
+var nextMovieId = 1;
 var movieReducer = (state = [], action) => {
   switch(action.type) {
     case 'ADD_MOVIE':
@@ -108,6 +149,21 @@ var movieReducer = (state = [], action) => {
       return state.filter((movie) => { movie.id !== action.id })
     default: 
       return state;
+  }
+}
+
+var addMovie = (title, genre) => {
+  return {
+    type: 'ADD_MOVIE',
+    title,
+    genre,
+  }
+}
+
+var removeMovie = (id) => {
+  return {
+    type: 'REMOVE_MOVIE',
+    id
   }
 }
 
@@ -138,61 +194,29 @@ var unsubscribe = store.subscribe(()=> {
 var currentState = store.getState();
 console.log('currentState', currentState);
 
-var action = {
-  type: 'CHANGE_NAME',
-  name: 'Andrew'
-}
 
 //dispatch your action
-store.dispatch(action);
+store.dispatch(changeName('Andrew'));
 
-store.dispatch({
-  type: 'ADD_HOBBY',
-  hobby: 'Running'
-});
+store.dispatch(addHobby('Running'));
 
-store.dispatch({
-  type: 'ADD_HOBBY',
-  hobby: 'Knitting'
-});
+store.dispatch(addHobby('Knitting'));
 
-store.dispatch({
-  type: 'REMOVE_HOBBY',
-  id: 2
-})
+store.dispatch(removeHobby(2));
 
-store.dispatch({
-  type: 'ADD_MOVIE',
-  title: 'Beauty and the Beast',
-  genre: 'Adaptation'
-});
+store.dispatch(addMovie('Beauty and the Beast', 'Adaptation'))
 
-store.dispatch({
-  type: 'CHANGE_NAME',
-  name: 'Emily'
-});
+store.dispatch(removeMovie(1))
 
-store.dispatch({
-  type: 'ADD_HOBBY',
-  hobby: 'Knitting'
-});
+store.dispatch(changeName('Emily'));
 
-store.dispatch({
-  type: 'ADD_MOVIE',
-  title: 'Get Out',
-  genre: 'Horror'
-});
+store.dispatch(changeName('Snorkeling'));
 
-store.dispatch({
-  type: 'ADD_MOVIE',
-  title: 'Power Rangers',
-  genre: 'Adaptation'
-});
+store.dispatch(addMovie('Get Out', 'Horror'))
 
-store.dispatch({
-  type: 'REMOVE_MOVIE',
-  id: 2
-});
+store.dispatch(addMovie('Power Rangers', 'Adaptation'))
+
+store.dispatch(removeMovie(1))
 
 
 
