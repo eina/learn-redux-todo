@@ -1,6 +1,6 @@
 //Simple redux app
 
-import Redux, { createStore } from 'redux';
+import Redux, { createStore, compose } from 'redux';
 
 console.log('starting redux example');
 
@@ -16,7 +16,19 @@ var reducer = (state = {name: 'Anonymous'}, action) => {
   }
 }
 
-var store = createStore(reducer);
+var store = createStore(reducer, compose(
+  window.devToolsExtension ? window.devToolsExtension() : f => f
+));
+
+//subscribe to changes
+var unsubscribe = store.subscribe(()=> {
+  var state = store.getState();
+
+  console.log('name is', state.name);
+});
+
+//unsubscribe from store.subscribe()
+// unsubscribe();
 
 //gets our current object
 var currentState = store.getState();
@@ -30,4 +42,9 @@ var action = {
 //dispatch your action
 store.dispatch(action);
 
-console.log('Name should be andrew', store.getState())
+
+
+store.dispatch({
+  type: 'CHANGE_NAME',
+  name: 'Emily'
+});

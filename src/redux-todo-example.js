@@ -1,4 +1,4 @@
-import redux, { createStore } from 'redux';
+import redux, { createStore, compose } from 'redux';
 
 console.log('starting todo redux example');
 
@@ -20,10 +20,20 @@ var reducer = (state = stateDefault, action) => {
   }
 }
 
-var store = createStore(reducer);
+//enable redux dev tools
+var store = createStore(reducer, compose(
+  window.devToolsExtension ? window.devToolsExtension() : f => f
+));
 
 //console.log the results 
 console.log('currentState', store.getState());
+
+//subscribe to changes
+var unsubscribe = store.subscribe(() =>{
+  var state = store.getState();
+
+  document.getElementById('root').innerHTML = state.searchText;
+})
 
 var changeSearchText = {
   type: 'CHANGE_SEARCH_TEXT',
@@ -33,5 +43,21 @@ var changeSearchText = {
 //dispatch the action
 
 store.dispatch(changeSearchText);
+
+store.dispatch({
+  type: 'CHANGE_SEARCH_TEXT',
+  searchText: 'work'
+});
+
+store.dispatch({
+  type: 'CHANGE_SEARCH_TEXT',
+  searchText: 'handlettering'
+});
+
+store.dispatch({
+  type: 'CHANGE_SEARCH_TEXT',
+  searchText: 'freelance'
+});
+
 
 console.log('search text should be penguins', store.getState())
