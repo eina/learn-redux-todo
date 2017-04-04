@@ -53,6 +53,13 @@ var reducer = (state = stateDefault, action) => {
           }
         ]
       }
+    case 'REMOVE_MOVIE':
+      return {
+        ...state,
+        movies: state.movies.filter((movie) => {
+          return movie.id !== action.id
+        })
+      }
     default:
       return state
   }
@@ -96,6 +103,11 @@ store.dispatch({
 });
 
 store.dispatch({
+  type: 'REMOVE_HOBBY',
+  id: 2
+})
+
+store.dispatch({
   type: 'CHANGE_NAME',
   name: 'Emily'
 });
@@ -107,6 +119,15 @@ store.dispatch({
 });
 
 store.dispatch({
-  type: 'REMOVE_HOBBY',
+  type: 'ADD_MOVIE',
+  title: 'Power Rangers',
+  genre: 'Adaptation'
+});
+
+store.dispatch({
+  type: 'REMOVE_MOVIE',
   id: 2
-})
+});
+
+
+
