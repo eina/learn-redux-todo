@@ -1,6 +1,7 @@
 //Simple redux app
 
-import Redux, { createStore, compose, combineReducers } from 'redux';
+import { createStore, compose, combineReducers } from 'redux';
+import axios from 'axios';
 
 console.log('starting redux example');
 
@@ -8,58 +9,6 @@ var stateDefault = {
   name: 'Anonymous',
   hobbies: [],
   movies: []
-}
-
-var oldReducer = (state = stateDefault, action) => {
-  switch(action.type){
-    case 'CHANGE_NAME':
-      return {
-        ...state,
-        name: action.name
-      } 
-    case 'ADD_HOBBY':
-      return {
-        ...state,
-        hobbies: [
-          //call existing hobbies
-          ...state.hobbies,
-          //add new hobby
-          {
-            id: nextHobbyId++,
-            hobby: action.hobby
-          }
-        ]
-      }
-    case 'REMOVE_HOBBY':
-      return {
-        ...state,
-        //filter returns a new array
-        hobbies: state.hobbies.filter((hobby) => {
-          return hobby.id !== action.id
-        })
-      }
-    case 'ADD_MOVIE':
-      return {
-        ...state,
-        movies: [
-          ...state.movies,
-          {
-            id: nextMovieId++,
-            title: action.title,
-            genre: action.genre
-          }
-        ]
-      }
-    case 'REMOVE_MOVIE':
-      return {
-        ...state,
-        movies: state.movies.filter((movie) => {
-          return movie.id !== action.id
-        })
-      }
-    default:
-      return state
-  }
 }
 
 /*
@@ -167,12 +116,66 @@ var removeMovie = (id) => {
   }
 }
 
+/*
+ * ----------------------
+ * Map reducers and generators
+ * Async actions
+ * ----------------------
+ */
+
+var mapReducer = (state = {isFetching: false, url: undefined}, action) => {
+  switch(action.type){
+    case "START_LOCATION_FETCH":
+      return {
+          isFetching: true,
+          url: undefined
+        };
+    case "COMPLETE_LOCATION_FETCH":
+      // fire when the data is fetched
+      return {
+        isFetching: false,
+        url: action.url
+      };
+    default:
+      return state;
+  }
+}
+
+var startLocationFetch = () => {
+  return {
+    type: 'START_LOCATION_FETCH'
+  }
+}
+
+var completeLocationFetch = (url) => {
+  return {
+    type: 'COMPLETE_LOCATION_FETCH',
+    url
+  }
+}
+
+var fetchLocation = () => {
+  //start location fetch by dispatching this action
+  //you can load a spinning loading wheel or something
+  store.dispatch(startLocationFetch())
+
+  //grab data
+  axios.get('https://ipinfo.io/json/').then(function(res) {
+    var loc = res.data.loc;
+    var baseUrl = 'http://maps.google.com?q=' ;
+
+    //dispatch the action to fetch the data
+    store.dispatch(completeLocationFetch(baseUrl + loc));
+  })
+};
+
 //reducer composition
 var reducer = combineReducers({
   //name state is goign to get managed by nameReducer
   name: nameReducer,
   hobbies: hobbiesReducer,
-  movies: movieReducer
+  movies: movieReducer,
+  map: mapReducer
 })
 
 var store = createStore(reducer, compose(
@@ -185,6 +188,12 @@ var unsubscribe = store.subscribe(()=> {
 
   console.log('name is', state.name);
   console.log('new state', state);
+
+  if(state.map.isFetching) {
+    document.getElementById('root').innerHTML = 'loading'
+  } else if(state.map.url){
+    console.log(state.map.url);
+  }
 });
 
 //unsubscribe from store.subscribe()
@@ -194,6 +203,8 @@ var unsubscribe = store.subscribe(()=> {
 var currentState = store.getState();
 console.log('currentState', currentState);
 
+//fetch data
+fetchLocation();
 
 //dispatch your action
 store.dispatch(changeName('Andrew'));
